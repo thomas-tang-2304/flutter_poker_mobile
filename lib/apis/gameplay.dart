@@ -6,7 +6,7 @@ class GameplayAPI {
     var response;
     try {
       response = await http.post(
-        Uri.parse('http://localhost:3001/-cards/'),
+        Uri.parse('https://poker-be-03kn.onrender.com/divide-cards/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -32,7 +32,7 @@ class GameplayAPI {
     var response;
     try {
       response = await http.post(
-        Uri.parse('http://localhost:3001/hand-ranking/'),
+        Uri.parse('https://poker-be-03kn.onrender.com/hand-ranking/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

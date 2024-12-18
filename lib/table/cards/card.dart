@@ -11,6 +11,7 @@ class Card extends PositionComponent with TapCallbacks {
   late double w;
   late double h;
   late double _scale;
+  late double opacity;
   late double angle;
 
   var _rect;
@@ -18,7 +19,7 @@ class Card extends PositionComponent with TapCallbacks {
   // Generative Constructor
   // ignore: non_constant_identifier_names
   Card(String buttonPath, double x, double y, double w, double h, double angle,
-      double _scale,
+      double opacity, double _scale,
       {required int priority}) {
     // ignore: prefer_initializing_formals
     this.buttonPath = buttonPath;
@@ -37,6 +38,8 @@ class Card extends PositionComponent with TapCallbacks {
 
     // ignore: prefer_initializing_formals
     this.angle = angle;
+    // ignore: prefer_initializing_formals
+    this.opacity = opacity;
 
     this.priority = priority;
 
@@ -65,7 +68,8 @@ class Card extends PositionComponent with TapCallbacks {
       ..size = Vector2(w * _scale, h * _scale)
       ..x = x
       ..y = y
-      ..angle  = angle
+      ..angle = angle
+      ..opacity = opacity
       ..anchor = Anchor.center;
     await add(button);
     priority = 1;

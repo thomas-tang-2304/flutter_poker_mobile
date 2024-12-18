@@ -25,97 +25,98 @@ class Home extends World {
   FutureOr<void> onLoad() async {
     game = findGame();
     await add(Card(
-        "deck/diamond_jack.png", -93 * 16, 34 * 16, 40 * 5, 60 * 5, 0, 1,
+        "deck/diamond_jack.png", -93 * 16, 34 * 16, 40 * 5, 60 * 5, 0, 1.0, 1,
         priority: priority));
-    await add(Card(
-        "deck/clover_ace.png", -88 * 16, 36 * 16, 40 * 5, 60 * 5, pi / 12.0, 1,
+    await add(Card("deck/clover_ace.png", -88 * 16, 36 * 16, 40 * 5, 60 * 5,
+        pi / 12.0, 1.0, 1,
         priority: 3));
 
-    await add(Card(
-        "deck/flip_down.png", -61 * 16, 27 * 16, 40 * 5, 60 * 5, pi * 0.4, 1,
+    await add(Card("deck/flip_down.png", -61 * 16, 27 * 16, 40 * 5, 60 * 5,
+        pi * 0.4, 1.0, 1,
         priority: priority));
-    await add(Card(
-        "deck/flip_down.png", -59 * 16, 29 * 16, 40 * 5, 60 * 5, pi * 1.7, 1,
+    await add(Card("deck/flip_down.png", -59 * 16, 29 * 16, 40 * 5, 60 * 5,
+        pi * 1.7, 1.0, 1,
+        priority: 3));
+
+    await add(Card("deck/diamond_8.png", -71 * 16, 0 * 16, 40 * 5, 60 * 5,
+        pi / 3.4, 1.0, 1,
         priority: 3));
 
     await add(Card(
-        "deck/diamond_8.png", -71 * 16, 0 * 16, 40 * 5, 60 * 5, pi / 3.4, 1,
+        "deck/heart_6.png", -106 * 16, 0 * 16, 40 * 5, 60 * 5, pi * 0.6, 1.0, 1,
         priority: 3));
 
     await add(Card(
-        "deck/heart_6.png", -106 * 16, 0 * 16, 40 * 5, 60 * 5, pi * 0.6, 1,
-        priority: 3));
-
-    await add(Card(
-        "deck/flip_down.png", -40 * 16, 3 * 16, 40 * 5, 60 * 5, pi / 8, 1,
+        "deck/flip_down.png", -40 * 16, 3 * 16, 40 * 5, 60 * 5, pi / 8, 1.0, 1,
         priority: 4));
 
-    await add(Card(
-        "deck/heart_king.png", -11 * 16, -44 * 16, 40 * 5, 60 * 5, pi * 1.7, 1,
+    await add(Card("deck/heart_king.png", -11 * 16, -44 * 16, 40 * 5, 60 * 5,
+        pi * 1.7, 1.0, 1,
         priority: 2));
+    await add(Card("deck/heart_3.png", 107 * 16, 41 * 16, 40 * 5, 60 * 5,
+        pi * 1.73, 1.0, 1,
+        priority: 2));
+
     await add(Card(
-        "deck/heart_3.png", 107 * 16, 41 * 16, 40 * 5, 60 * 5, pi * 1.73, 1,
+        "deck/spade_4.png", 19 * 16, -25 * 16, 40 * 5, 60 * 5, pi * 2.9, 1.0, 1,
         priority: 2));
 
     await add(Card(
-        "deck/spade_4.png", 19 * 16, -25 * 16, 40 * 5, 60 * 5, pi * 2.9, 1,
-        priority: 2));
-
-    await add(Card("deck/clover_6.png", 92 * 16, -33 * 16, 40 * 5, 60 * 5, 0, 1,
+        "deck/clover_6.png", 92 * 16, -33 * 16, 40 * 5, 60 * 5, 0, 1.0, 1,
         priority: priority));
-    await add(Card(
-        "deck/spade_queen.png", 80 * 16, -21 * 16, 40 * 5, 60 * 5, pi / 12.0, 1,
+    await add(Card("deck/spade_queen.png", 80 * 16, -21 * 16, 40 * 5, 60 * 5,
+        pi / 12.0, 1.0, 1,
         priority: 3));
 
-    await add(Card(
-        "deck/diamond_2.png", 88 * 16, 10 * 16, 40 * 5, 60 * 5, pi * 0.5, 1,
+    await add(Card("deck/diamond_2.png", 88 * 16, 10 * 16, 40 * 5, 60 * 5,
+        pi * 0.5, 1.0, 1,
         priority: 3));
 
     await add(Card("deck/diamond_ace.png", 64 * 16, -20 * 16, 40 * 5, 60 * 5,
-        3 * pi / 2, 1,
+        3 * pi / 2, 1.0, 1,
         priority: 3));
     await add(Card(
-        "deck/spade_king.png", 67 * 16, 27 * 16, 40 * 5, 60 * 5, 2 * pi, 1,
+        "deck/spade_king.png", 67 * 16, 27 * 16, 40 * 5, 60 * 5, 2 * pi, 1.0, 1,
         priority: priority));
-    await add(Card(
-        "deck/flip_down.png", 65 * 16, 29 * 16, 40 * 5, 60 * 5, 3 * pi / 5, 1,
+    await add(Card("deck/flip_down.png", 65 * 16, 29 * 16, 40 * 5, 60 * 5,
+        3 * pi / 5, 1.0, 1,
         priority: 3));
-    await add(Card(
-        "deck/heart_7.png", -86 * 16, -31 * 16, 40 * 5, 60 * 5, pi * 2.9, 1,
+    await add(Card("deck/heart_7.png", -86 * 16, -31 * 16, 40 * 5, 60 * 5,
+        pi * 2.9, 1.0, 1,
         priority: 3));
-    await add(Card(
-        "deck/flip_down.png", 47 * 16, 53 * 16, 40 * 5, 60 * 5, pi * 1.4, 1,
+    await add(Card("deck/flip_down.png", 47 * 16, 53 * 16, 40 * 5, 60 * 5,
+        pi * 1.4, 1.0, 1,
         priority: 3));
 
     await add(Card("deck/diamond_queen.png", -62 * 16, -49 * 16, 40 * 5, 60 * 5,
-        pi * 0.8, 1,
+        pi * 0.8, 1.0, 1,
         priority: 3));
-    await add(Card(
-        "deck/flip_down.png", -89 * 16, -63 * 16, 40 * 5, 60 * 5, pi * 1.6, 1,
-        priority: 3));
-
-    await add(Card(
-        "deck/heart_9.png", -18 * 16, -75 * 16, 40 * 5, 60 * 5, pi * 0.8, 1,
-        priority: 3));
-    await add(Card(
-        "deck/spade_3.png", 38 * 16, -75 * 16, 40 * 5, 60 * 5, pi * 1.47, 1,
+    await add(Card("deck/flip_down.png", -89 * 16, -63 * 16, 40 * 5, 60 * 5,
+        pi * 1.6, 1.0, 1,
         priority: 3));
 
-    await add(Card(
-        "deck/clover_5.png", 78 * 16, -64 * 16, 40 * 5, 60 * 5, pi * 1.9, 1,
+    await add(Card("deck/heart_9.png", -18 * 16, -75 * 16, 40 * 5, 60 * 5,
+        pi * 0.8, 1.0, 1,
         priority: 3));
-    await add(Card(
-        "deck/heart_2.png", -73 * 16, 64 * 16, 40 * 5, 60 * 5, pi * 1.1, 1,
-        priority: 3));
-    await add(Card(
-        "deck/spade_5.png", -67 * 16, 64 * 16, 40 * 5, 60 * 5, pi * 0.5, 1,
-        priority: 3));
-    await add(Card(
-        "deck/clover_jack.png", 29 * 16, 63 * 16, 40 * 5, 60 * 5, pi * 0.69, 1,
+    await add(Card("deck/spade_3.png", 38 * 16, -75 * 16, 40 * 5, 60 * 5,
+        pi * 1.47, 1.0, 1,
         priority: 3));
 
+    await add(Card("deck/clover_5.png", 78 * 16, -64 * 16, 40 * 5, 60 * 5,
+        pi * 1.9, 1.0, 1,
+        priority: 3));
     await add(Card(
-        "deck/clover_3.png", -29 * 16, 74 * 16, 40 * 5, 60 * 5, pi * 1.8, 1,
+        "deck/heart_2.png", -73 * 16, 64 * 16, 40 * 5, 60 * 5, pi * 1.1, 1.0, 1,
+        priority: 3));
+    await add(Card(
+        "deck/spade_5.png", -67 * 16, 64 * 16, 40 * 5, 60 * 5, pi * 0.5, 1.0, 1,
+        priority: 3));
+    await add(Card("deck/clover_jack.png", 29 * 16, 63 * 16, 40 * 5, 60 * 5,
+        pi * 0.69, 1.0, 1,
+        priority: 3));
+
+    await add(Card("deck/clover_3.png", -29 * 16, 74 * 16, 40 * 5, 60 * 5,
+        pi * 1.8, 1.0, 1,
         priority: 3));
     await add(
         Chip.c25(24 * 16, -57 * 16, 35 * 5, 35 * 5, pi * 1.36, 1, priority: 2));

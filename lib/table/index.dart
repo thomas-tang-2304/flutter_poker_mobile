@@ -9,6 +9,15 @@ class Poker extends Component {
   var game;
   final world = PokerTable();
 
+  @override
+  void onRemove() async {
+    // TODO: implement onRemove
+    await game.socket.emit('leave', {
+      "roomCode": game.player.roomId,
+      "username": game.player.name,
+      "gameBalance": game.player.cash 
+    });
+  }
 
   @override
   FutureOr<void> onLoad() {

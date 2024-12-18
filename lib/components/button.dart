@@ -3,8 +3,12 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame/game.dart';
 import 'package:flame/text.dart';
+import 'package:poker_flutter_game/components/menu_popup.dart';
 import 'package:poker_flutter_game/lobby/lobby.dart';
+import 'package:poker_flutter_game/table/index.dart';
+import 'package:poker_flutter_game/table/table.dart';
 import 'package:poker_flutter_game/utils/paging.dart';
 import 'package:poker_flutter_game/utils/text_render.dart';
 
@@ -61,12 +65,6 @@ class Button extends PositionComponent with TapCallbacks {
   }
 
   @override
-  void update(double dt) {
-    // TODO: implement update
-    super.update(dt);
-  }
-
-  @override
   FutureOr<void> onLoad() async {
     game = findGame();
     button
@@ -82,26 +80,26 @@ class Button extends PositionComponent with TapCallbacks {
 }
 
 class MiniTable extends Button {
-  late String roomCode;
-  late int firstBet;
+  late dynamic table;
   late var game;
-  MiniTable(super.buttonPath, this.roomCode, this.firstBet, super.x, super.y,
-      super.w, super.h, super.scale,
+  MiniTable(super.buttonPath, this.table, super.x, super.y, super.w, super.h,
+      super.scale,
       {required super.priority});
 
   late TextComponent<TextRenderer> roomCodeText = TextComponent(
-    text: roomCode,
+    text: table["roomCode"],
     anchor: Anchor.center,
-    position: Vector2(x, y - 15 * 16),
+    position: Vector2(x, y - 17 * 16),
     textRenderer: roomCodeRegular,
   );
 
   late TextComponent<TextRenderer> firstBetText = TextComponent(
-    text: firstBet % 1000 == 0
-        ? "${(firstBet / 1000).round()}K"
-        : "${(firstBet / 1000)}K",
+    text: table["firstBet"] % 1000 == 0
+        ? "${(table["firstBet"] / 1000).round()}K"
+        : "${(table["firstBet"] / 1000)}K",
     anchor: Anchor.center,
-    position: Vector2(x + 22 * 16, y + 11 * 16),
+    position: Vector2(x, y + 5 * 16),
+    priority: 10,
     textRenderer: firstBetRegular,
   );
 
@@ -113,6 +111,14 @@ class MiniTable extends Button {
   @override
   void onTapUp(TapUpEvent event) async {
     button.y -= 2;
+    await game.socket.emit('join', {
+      "username": game.player.name,
+      "roomCode": table["roomCode"],
+      "gameBalance": 100000
+    });
+    game.player.roomId = table["roomCode"];
+    await game.router.pop();
+    await game.router.pushRoute(Route(Poker.new));
   }
 
   @override
@@ -120,10 +126,13 @@ class MiniTable extends Button {
     button.y += 2;
   }
 
-  @override
-  void update(double dt) {
-    // TODO: implement update
-    super.update(dt);
+  void render(Canvas canvas) async {
+    super.render(canvas);
+    _rect = Rect.fromLTWH(x - 350, y - 300, 700, 350);
+
+    final Path path = Path()..addRect(_rect);
+
+    canvas.drawShadow(path, Color.fromARGB(64, 244, 244, 244), 40, false);
   }
 
   @override
@@ -140,23 +149,27 @@ class MiniTable extends Button {
     add(roomCodeText);
     add(firstBetText);
 
-    var _x = -7 ;
-    var _y = -3;
-    for (var i = 0; i < 6; i++) {
-      userActive.add(Button(
-          "icons/vecteezy_alpaca-face-icon-cute-animal-icon-in-circle_20647519.png",
-          x + _x * 16,
-          y + _y * 16,
-          5 * 16,
-          5 * 16,
-          1,
-          priority: 5));
-      if (i == 2) {
-        _y += 6;
-        _x = -7;
-      } else {
-        _x += 7;
+    var _x = [
+      [0],
+      [-3, 3],
+      [-6, 0, 6],
+      [-9, -3, 3, 9],
+      [-12, -6, 0, 6, 12],
+      [-15, -9, -3, 3, 9, 15]
+    ];
+    for (var i = 0; i < table["limit"]; i++) {
+      Button userComponent = Button("user_gray.png",
+          x + _x[table["limit"] - 1][i] * 16, y - 1 * 16, 3 * 16, 4 * 16, 1.2,
+          priority: 5);
+      userComponent.button.opacity = 0.5;
+      if (table["usersCount"] - 1 >= i) {
+        userComponent = Button("user_yellow.png",
+            x + _x[table["limit"] - 1][i] * 16, y - 1 * 16, 3 * 16, 4 * 16, 1.2,
+            priority: 5);
+        userComponent.button.opacity = 1;
       }
+
+      userActive.add(userComponent);
     }
     addAll(userActive);
     return super.onLoad();
@@ -189,13 +202,12 @@ class LeftArrow extends Button with HasWorldReference<Lobby> {
         for (final table in world.scrollLobby.tables) {
           MiniTable room_sprite = MiniTable(
               'mini_table.png',
-              table["roomCode"],
-              table["firstBet"],
+              table,
               world.scrollLobby.initialTable_X,
               world.scrollLobby.initialTable_Y,
               700,
               350,
-              1,
+              1.2,
               priority: 5);
           world.scrollLobby.add(room_sprite);
           world.scrollLobby.initialTable_X += world.scrollLobby.gap_x;
@@ -203,12 +215,12 @@ class LeftArrow extends Button with HasWorldReference<Lobby> {
           // print(countRoom);
           if (i % 3 == 0) {
             world.scrollLobby.initialTable_Y += world.scrollLobby.gap_y;
-            world.scrollLobby.initialTable_X = -60 * 16;
+            world.scrollLobby.initialTable_X = -65 * 16;
           }
           i++;
         }
       }
-      world.scrollLobby.initialTable_X = -60 * 16;
+      world.scrollLobby.initialTable_X = -65 * 16;
       world.scrollLobby.initialTable_Y = -300;
 
       button.y += 2;
@@ -248,13 +260,12 @@ class RightArrow extends Button with HasWorldReference<Lobby> {
         for (final table in world.scrollLobby.tables) {
           MiniTable room_sprite = MiniTable(
               'mini_table.png',
-              table["roomCode"],
-              table["firstBet"],
+              table,
               world.scrollLobby.initialTable_X,
               world.scrollLobby.initialTable_Y,
               700,
               350,
-              1,
+              1.2,
               priority: 5);
           world.scrollLobby.add(room_sprite);
           world.scrollLobby.initialTable_X += world.scrollLobby.gap_x;
@@ -262,12 +273,12 @@ class RightArrow extends Button with HasWorldReference<Lobby> {
           // print(countRoom);
           if (i % 3 == 0) {
             world.scrollLobby.initialTable_Y += world.scrollLobby.gap_y;
-            world.scrollLobby.initialTable_X = -60 * 16;
+            world.scrollLobby.initialTable_X = -65 * 16;
           }
           i++;
         }
       }
-      world.scrollLobby.initialTable_X = -60 * 16;
+      world.scrollLobby.initialTable_X = -65 * 16;
       world.scrollLobby.initialTable_Y = -300;
 
       button.y += 2;
@@ -276,5 +287,68 @@ class RightArrow extends Button with HasWorldReference<Lobby> {
     }
 
     super.onTapUp(event);
+  }
+}
+
+class CreateRoomButton extends Button {
+  late Popup menuPopup;
+  CreateRoomButton(
+      super.buttonPath, super.x, super.y, super.w, super.h, super.scale,
+      {required super.priority});
+
+  late TextComponent<TextRenderer> createText = TextComponent(
+      text: "Create",
+      anchor: Anchor.center,
+      position: Vector2(x, y),
+      textRenderer: home_button_regular,
+      priority: priority + 1);
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    // TODO: implement onTapDown
+    game.overlays.add("roomCodePopup");
+    super.onTapDown(event);
+  }
+
+  @override
+  FutureOr<void> onLoad() {
+    // TODO: implement onLoad
+    add(super.button);
+    add(createText);
+    return super.onLoad();
+  }
+}
+
+class StartButton extends Button with HasWorldReference<PokerTable> {
+  late String buttonText;
+
+  StartButton(super.buttonPath, this.buttonText, super.x, super.y, super.w,
+      super.h, super.scale,
+      {required super.priority});
+
+  late TextComponent<TextRenderer> startText = TextComponent(
+      text: buttonText,
+      anchor: Anchor.center,
+      position: Vector2(x, y),
+      textRenderer: home_button_regular,
+      priority: priority + 1);
+
+  @override
+  void onTapDown(TapDownEvent event) async {
+    // TODO: implement onTapDown
+    await game.socket.emit("divide-cards", {"roomCode": game.player.roomId});
+    // await game.socket.on("divided", (divided_cards_result) {
+    //   world.divided_cards_result = divided_cards_result;
+    // });
+    super.onTapDown(event);
+  }
+
+  @override
+  FutureOr<void> onLoad() {
+    // TODO: implement onLoad
+
+    add(button);
+    add(startText);
+    return super.onLoad();
   }
 }

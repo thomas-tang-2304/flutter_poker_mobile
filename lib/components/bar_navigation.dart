@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:poker_flutter_game/components/button.dart';
-import 'package:poker_flutter_game/navigations/popup.dart';
+import 'package:poker_flutter_game/components/menu_popup.dart';
 
 class NavBar extends PositionComponent {
   var game;

@@ -53,7 +53,7 @@ class HomeButton extends PositionComponent
   void setUser(String name, int userType, String playerId) {
     game.player.type = userType;
     game.player.name = name;
-    game.player.player_id = playerId;
+    game.player.playerId = playerId;
   }
 
   @override
@@ -158,16 +158,19 @@ class GGLoginButton extends HomeButton {
     try {
       await _googleSignIn.signIn().then((GoogleSignInAccount? value) {
         if (value?.displayName != null) {
-          // authAPI.signUp(value!.displayName!, "google", value.email).then((value) {
-          //   print(value);
-          // });
-          print(value);
-          setUser(value!.displayName!, 3, uuid.v1());
+          authAPI
+              .signUp(value!.displayName!, "google", value.email)
+              .then((value) {
+            print(value);
+          });
+
+          setUser(value.displayName!, 3, uuid.v1());
           game.router.pushRoute(Route(LobbyPage.new));
         }
       });
     } catch (error) {
       add(renderText);
+      print('signup failed');
       print(error);
     }
   }

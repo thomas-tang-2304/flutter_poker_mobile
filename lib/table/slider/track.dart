@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 // import 'package:poker_flutter_game/poker.dart';
 
-class Track extends FlameGame with TapCallbacks {
+class Track extends Component with TapCallbacks {
   late String buttonPath;
   late double x;
   late double y;
@@ -57,7 +57,7 @@ class Track extends FlameGame with TapCallbacks {
   @override
   FutureOr<void> onLoad() async {
     track
-      ..sprite = await loadSprite(buttonPath)
+      ..sprite = await Sprite.load(buttonPath)
       ..size = Vector2(32 * 5, 160 * 5)
       ..x = x
       ..y = y

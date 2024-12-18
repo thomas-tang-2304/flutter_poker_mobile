@@ -11,19 +11,24 @@ final regular = TextPaint(
 
 final firstBetRegular = TextPaint(
     style: const TextStyle(
-        color: Color.fromARGB(255, 97, 190, 60),
-        fontSize: 45.0, // Change the font size here
+        color: Color.fromARGB(255, 123, 198, 241),
+        fontSize: 60.0, // Change the font size here
         fontWeight: FontWeight.w700,
         letterSpacing: 4,
         fontFamily: 'TitilliumWeb Bold'));
 final roomCodeRegular = TextPaint(
     style: const TextStyle(
         color: Color.fromARGB(255, 242, 177, 153),
-        fontSize: 65.0, // Change the font size here
+        fontSize: 80.0, // Change the font size here
         fontWeight: FontWeight.w700,
         letterSpacing: 3,
         fontFamily: 'TitilliumWeb Bold'));
-
+final pagingRegular = TextPaint(
+    style: const TextStyle(
+        color: Color.fromARGB(255, 255, 255, 255),
+        fontSize: 90.0, // Change the font size here
+        fontWeight: FontWeight.w700,
+        fontFamily: 'TitilliumWeb Bold'));
 // ignore: non_constant_identifier_names
 final chip_currency_regular = TextPaint(
     style: const TextStyle(

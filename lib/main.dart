@@ -2,7 +2,7 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:poker_flutter_game/lobby/Paralax/paralax_background.dart';
+import 'package:poker_flutter_game/lobby/widgets/create_join_room_form.dart';
 // import 'package:poker_flutter_game/table/index.dart';
 import 'package:poker_flutter_game/router.dart';
 
@@ -16,7 +16,13 @@ Future<void> main() async {
   runApp(MaterialApp(
       home: Scaffold(
           body: Stack(children: [
-    GameWidget(game: kDebugMode ? RouterGame() : game),
-    
+    GameWidget(
+      game: kDebugMode ? RouterGame() : game,
+      overlayBuilderMap: {
+        'roomCodePopup': (BuildContext context, RouterGame game) {
+          return CreateJoinRoomForm(game);
+        },
+      },
+    ),
   ]))));
 }

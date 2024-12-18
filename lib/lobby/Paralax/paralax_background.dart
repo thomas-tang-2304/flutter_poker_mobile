@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:poker_flutter_game/components/button.dart';
 import 'package:poker_flutter_game/utils/paging.dart';
@@ -11,11 +10,15 @@ import 'package:poker_flutter_game/utils/text_render.dart';
 class ScrollLobby extends PositionComponent with DragCallbacks {
   var game;
 
-  double initialTable_X = -60 * 16;
+// ignore: non_constant_identifier_names
+  double initialTable_X = -65 * 16;
   // ignore: non_constant_identifier_names
   double initialTable_Y = -300;
+
+  // ignore: non_constant_identifier_names
   double gap_y = 38 * 16;
-  double gap_x = 60 * 16;
+  // ignore: non_constant_identifier_names
+  double gap_x = 65 * 16;
 
   int page = 1;
   int limit = 6;
@@ -32,7 +35,7 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
     text: '1 - ${limit}',
     anchor: Anchor.center,
     position: Vector2(0, 39 * 16),
-    textRenderer: home_button_regular,
+    textRenderer: pagingRegular,
   );
   late RightArrow rightArrow = RightArrow(
       "buttons/right_arrow.png", 13 * 16, 39 * 16, 15, 20, 6,
@@ -45,10 +48,12 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
   FutureOr<void> onLoad() async {
     // ignore: unused_local_variable
     game = findGame();
+    // print(jsonDecode(game.socket));
     await game.socket
-        .emit('get-sample-rooms', {"username": 'hong', "roomCode": "1234"});
+        .emit('get-sample-rooms');
 
     await game.socket.on("sample-rooms", (handler) {
+  
       if (handler["data"] != null) {
         full_tables = handler["data"];
         int i = 1;
@@ -58,18 +63,18 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
                 ? full_tables.length
                 : (page) * limit);
         for (final table in tables) {
-          MiniTable room_sprite = MiniTable('mini_table.png', table["roomCode"],
-              table["firstBet"], initialTable_X, initialTable_Y, 700, 350, 1,
+          MiniTable roomSprite = MiniTable('mini_table.png', table,
+              initialTable_X, initialTable_Y, 700, 350, 1.2,
               priority: 5);
-          add(room_sprite);
+          add(roomSprite);
           initialTable_X += gap_x;
           if (i % 3 == 0) {
             initialTable_Y += gap_y;
-            initialTable_X = -60 * 16;
+            initialTable_X = -65 * 16;
           }
           i++;
         }
-        initialTable_X = -60 * 16;
+        initialTable_X = -65 * 16;
         initialTable_Y = -300;
       }
     });
@@ -84,7 +89,7 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
   @override
   void update(double dt) {
     // TODO: implement update
-    print(page);
+    // print(page);
     if (page >= pageOfTables(full_tables.length, limit)) {
       rightArrow.button.opacity = 0.5;
     } else {

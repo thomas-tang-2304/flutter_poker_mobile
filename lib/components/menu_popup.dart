@@ -8,6 +8,7 @@ import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:poker_flutter_game/components/button.dart';
 import 'package:poker_flutter_game/home/index.dart';
+import 'package:poker_flutter_game/lobby/index.dart';
 import 'package:poker_flutter_game/utils/text_render.dart';
 
 class Popup extends PositionComponent with TapCallbacks {
@@ -19,11 +20,13 @@ class Popup extends PositionComponent with TapCallbacks {
   late double h;
   late final double _scale;
 
-  late PopupButtonWithText quitButton = PopupButtonWithText(
-      "Quit",
+  late QuitButton quitButton = QuitButton("Quit", 'buttons/popup_button_3.png',
+      game.size.x / 2, game.size.y / 2, 217, 60, game.size.y / 700);
+  late ExitRoomButton exitRoomButton = ExitRoomButton(
+      "Exit",
       'buttons/popup_button_3.png',
       game.size.x / 2,
-      game.size.y / 2,
+      game.size.y / 2 + (game.size.y / 700) * 100,
       217,
       60,
       game.size.y / 700);
@@ -73,6 +76,8 @@ class Popup extends PositionComponent with TapCallbacks {
     await add(button);
     await add(closeButton);
     await add(renderText);
+
+    await add(exitRoomButton);
     await add(quitButton);
 
     return super.onLoad();
@@ -126,13 +131,6 @@ class PopupButtonWithText extends Button with TapCallbacks {
       priority: 5);
 
   @override
-  void onTapUp(TapUpEvent event) {
-    game.menuPopupToggle = false;
-    game.router.pushRoute(Route(HomePage.new));
-    super.onTapUp(event);
-  }
-
-  @override
   FutureOr<void> onLoad() {
     // TODO: implement onLoad
     // ignore: unused_local_variable
@@ -141,5 +139,36 @@ class PopupButtonWithText extends Button with TapCallbacks {
 
     add(renderText);
     return super.onLoad();
+  }
+}
+
+class QuitButton extends PopupButtonWithText {
+  QuitButton(super.popupText, super.buttonPath, super.x, super.y, super.w,
+      super.h, super.scale);
+
+  @override
+  void onTapUp(TapUpEvent event) async {
+    game.menuPopupToggle = false;
+    await game.router.pop();
+    await game.router.pushRoute(Route(HomePage.new));
+    super.onTapUp(event);
+  }
+}
+
+class ExitRoomButton extends PopupButtonWithText {
+  ExitRoomButton(super.popupText, super.buttonPath, super.x, super.y, super.w,
+      super.h, super.scale);
+
+  @override
+  void onTapUp(TapUpEvent event) async {
+    game.menuPopupToggle = false;
+    await game.socket.emit('leave', {
+      "roomCode": game.player.roomId,
+      "username": game.player.name,
+      "gameBalance": game.player.cash
+    });
+    await game.router.pop();
+    await game.router.pushRoute(Route(LobbyPage.new));
+    super.onTapUp(event);
   }
 }
