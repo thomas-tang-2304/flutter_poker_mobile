@@ -18,31 +18,18 @@ class Card extends PositionComponent with TapCallbacks {
 
   // Generative Constructor
   // ignore: non_constant_identifier_names
-  Card(String buttonPath, double x, double y, double w, double h, double angle,
-      double opacity, double _scale,
-      {required int priority}) {
-    // ignore: prefer_initializing_formals
-    this.buttonPath = buttonPath;
-
-    // ignore: prefer_initializing_formals
-    this.x = x;
-    // ignore: prefer_initializing_formals
-    this.y = y;
-
-    // ignore: prefer_initializing_formals
-    this.w = w;
-    // ignore: prefer_initializing_formals
-    this.h = h;
-    // ignore: prefer_initializing_formals
-    this._scale = _scale;
-
-    // ignore: prefer_initializing_formals
-    this.angle = angle;
-    // ignore: prefer_initializing_formals
-    this.opacity = opacity;
-
-    this.priority = priority;
-
+  Card(
+    this.buttonPath, 
+    this.x, 
+    this.y, 
+    this.w, 
+    this.h, 
+    this.angle, 
+    this.opacity, 
+    this._scale,
+    {required int priority} // Named required parameter
+  ) {
+    // Only the calculation remains in the body
     _rect = Rect.fromLTWH(
         x - w * _scale / 2, y - h * _scale / 2, w * _scale, h * _scale);
   }

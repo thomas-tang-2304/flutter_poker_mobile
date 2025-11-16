@@ -44,13 +44,9 @@ class Track extends Component with TapCallbacks {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    // _paint.color = const Color.fromARGB(52, 0, 0, 0);
-    // canvas.drawRect(_rect, _paint);
 
-    // Define the path for the rectangle
     final Path path = Path()..addRect(_rect);
 
-    // Draw the shadow
     canvas.drawShadow(path, Colors.black, 5.0, false);
   }
 

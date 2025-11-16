@@ -63,7 +63,6 @@ class Thumb extends Component with DragCallbacks {
     }
   }
 
-  @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
   }

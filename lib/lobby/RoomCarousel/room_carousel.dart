@@ -25,14 +25,14 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
 
   int countRoom = 0;
 
-  late dynamic full_tables = [];
+  late dynamic fullTables = [];
 
   late dynamic tables;
 
-  SpriteComponent button = SpriteComponent();
+ 
 
   late TextComponent<TextRenderer> paginateText = TextComponent(
-    text: '1 - ${limit}',
+    text: '1 - $limit',
     anchor: Anchor.center,
     position: Vector2(0, 39 * 16),
     textRenderer: pagingRegular,
@@ -46,21 +46,25 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
 
   @override
   FutureOr<void> onLoad() async {
-    // ignore: unused_local_variable
     game = findGame();
-    // print(jsonDecode(game.socket));
+
     await game.socket
         .emit('get-sample-rooms');
 
     await game.socket.on("sample-rooms", (handler) {
+      final miniTables = children.whereType<MiniTable>();
+
+      if (miniTables.isNotEmpty) {
+        removeAll(children.whereType<MiniTable>().where((minitTable) => minitTable.isMounted));
+      }
   
       if (handler["data"] != null) {
-        full_tables = handler["data"];
+        fullTables = handler["data"];
         int i = 1;
-        tables = full_tables?.sublist(
+        tables = fullTables?.sublist(
             ((page - 1) * limit),
-            ((page) * limit) > full_tables.length
-                ? full_tables.length
+            ((page) * limit) > fullTables.length
+                ? fullTables.length
                 : (page) * limit);
         for (final table in tables) {
           MiniTable roomSprite = MiniTable('mini_table.png', table,
@@ -88,9 +92,8 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
 
   @override
   void update(double dt) {
-    // TODO: implement update
     // print(page);
-    if (page >= pageOfTables(full_tables.length, limit)) {
+    if (page >= pageOfTables(fullTables.length, limit)) {
       rightArrow.button.opacity = 0.5;
     } else {
       rightArrow.button.opacity = 1;
@@ -101,4 +104,5 @@ class ScrollLobby extends PositionComponent with DragCallbacks {
       leftArrow.button.opacity = 1;
     }
   }
+ 
 }

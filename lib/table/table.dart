@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flame/text.dart';
 
 import 'package:flame/components.dart';
+import 'package:flutter/foundation.dart';
 import 'package:poker_flutter_game/components/button.dart';
 
 import 'package:poker_flutter_game/table/buttons/call.dart';
@@ -11,6 +12,7 @@ import 'package:poker_flutter_game/table/cards/card.dart';
 import 'package:poker_flutter_game/table/slider/thumb.dart';
 import 'package:poker_flutter_game/table/slider/track.dart';
 import 'package:poker_flutter_game/utils/text_render.dart';
+import 'package:flame/effects.dart';
 
 class PokerTable extends World {
   // final gameplayAPI = GameplayAPI();
@@ -106,7 +108,6 @@ class PokerTable extends World {
       },
     }
   ];
-  // ignore: non_constant_identifier_names
 
   late SpriteComponent pokerTable = SpriteComponent();
   late CallButton callButtonComponent;
@@ -158,17 +159,11 @@ class PokerTable extends World {
       4,
       priority: 2,
     );
-    okButtonComponent = OKButton("buttons/ok_button.png",
-        "buttons/ok_button.png", 0.0, 80 * 16, 30 * 16, 60, 40, 3, false,
-        priority: 2);
-    allInButtonComponent = AllInButton("buttons/all_in.png", "buttons/all_in.png",
-        0.0, 80 * 16, 40 * 16, 60, 40, 3, false,
-        priority: 2);
+    okButtonComponent = OKButton("buttons/ok_button.png", "buttons/ok_button.png", 0.0, 80 * 16, 30 * 16, 60, 40, 3, false, priority: 2);
+    allInButtonComponent = AllInButton("buttons/all_in.png", "buttons/all_in.png", 0.0, 80 * 16, 40 * 16, 60, 40, 3, false, priority: 2);
     trackComponent = Track("slider/track.png", 80 * 16, 0 * 16);
     thumbComponent = Thumb("slider/thumb.png", 80 * 16, 18.125 * 16);
-    startButton = StartButton(
-        "buttons/popup_button.png", "START", 0, 0, 217, 60, 3,
-        priority: 10);
+    startButton = StartButton("buttons/popup_button.png", "START", 0, 0, 217, 60, 3, priority: 10);
 
     thumbComponent.position[0] = 80 * 16;
     thumbComponent.position[1] = 18.125 * 16;
@@ -225,82 +220,101 @@ class PokerTable extends World {
   }
 
   @override
+  // Remove async unless you absolutely need it for await calls inside.
+  // Since we remove the unnecessary awaits, the function can be synchronous.
   void update(double dt) async {
-    renderText.text =
-        '${calculateNumber((0 - (100 * (thumbComponent.position[1] - 290) / 580)) * game.player.cash / 100).toStringAsFixed(0)}K';
+    // --- 1. Betting UI Calculation (Keep) ---
+    // The value calculation is fine, but the logic should be encapsulated.
+    final currentBetText = calculateNumber(
+      (0 - (100 * (thumbComponent.position.y - 290) / 580)) * game.player.cash / 100
+    ).toStringAsFixed(0);
+    renderText.text = '${currentBetText}K';
+    
+    okButtonComponent.betNumber = double.parse(currentBetText);
 
-    okButtonComponent.betNumber =
-        double.parse(renderText.text.substring(0, renderText.text.length - 1));
+    final bettingComponents = [
+      okButtonComponent, 
+      trackComponent, 
+      thumbComponent, 
+      allInButtonComponent, 
+      renderText
+    ];
 
-    if (!betButtonComponent.betActive) {
-      if (trackComponent.isMounted) {
-        remove(thumbComponent);
-        remove(okButtonComponent);
-        remove(trackComponent);
-        remove(allInButtonComponent);
-        remove(renderText);
+    if (betButtonComponent.betActive) {
+      for (var comp in bettingComponents) {
+        if (!comp.isMounted) {
+          await add(comp);
+        }
       }
     } else {
-      add(trackComponent);
-      add(thumbComponent);
-      add(okButtonComponent);
-      add(allInButtonComponent);
-      add(renderText);
+      for (var comp in bettingComponents) {
+        if (comp.isMounted) {
+          remove(comp);
+        }
+      }
     }
+
+    final actionComponents = [
+      callButtonComponent, 
+      betButtonComponent, 
+      foldButtonComponent, 
+      lastBetText
+    ];
+
     if (game.player.isPlayersTurn && game.player.hasStartedGame) {
-      add(callButtonComponent);
-      add(betButtonComponent);
-      add(foldButtonComponent);
-      add(lastBetText);
-    } else {
-      if (callButtonComponent.isMounted) {
-        remove(callButtonComponent);
-        remove(betButtonComponent);
-        remove(foldButtonComponent);
-        remove(lastBetText);
+      for (var comp in actionComponents) {
+        if (!comp.isMounted) {
+          add(comp);
+        }
       }
-    }
-
-    if (game.player.lastBet == 0.0) {
-      lastBetText.text = "";
     } else {
-      lastBetText.text = game.player.lastBet.toString();
-    }
-
-    // select the player's turn, whose turn are selected the opacity was set to 1, else to 0.4
-    if (game.player.swappedUsersList.length > 0 &&
-        game.player.playerCardsDisplay.length > 0) {
-      int indexOfPlayerTurn = game.player.swappedUsersList.indexWhere((value) {
-        return value["username"] == game.player.playerNameTurn;
-      });
-      var i = 0;
-      game.player.playerCardsDisplay.forEach((playerInGame) async {
-        if (i == indexOfPlayerTurn) {
-          if (i == 0) {
-            playerInGame.forEach((cardInGame) async {
-              cardInGame?.button.opacity = 1.0;
-            });
-          } else {
-            playerInGame?.button.opacity = 1.0;
-          }
-        } else {
-          if (i == 0) {
-            playerInGame.forEach((cardInGame) async {
-              cardInGame?.button.opacity = 0.4;
-            });
-          } else {
-            playerInGame?.button.opacity = 0.4;
+      // Check if any component is mounted before attempting removal.
+      // If you need the whole block removed, it's safer to check one component.
+      if (callButtonComponent.isMounted) { 
+        for (var comp in actionComponents) {
+          if (comp.isMounted) {
+            remove(comp);
           }
         }
-        // print(i);
-
-        i++;
-      });
+      }
     }
 
+    lastBetText.text = game.player.lastBet == 0.0
+        ? ""
+        : game.player.lastBet.toString();
+
+    final usersList = game.player.swappedUsersList;
+    final cardsList = game.player.playerCardsDisplay;
+
+    if (usersList.isNotEmpty && cardsList.isNotEmpty) {
+      int indexOfPlayerTurn = usersList.indexWhere(
+        (value) => value["username"] == game.player.playerNameTurn
+      );
+
+      double activeOpacity = 1.0;
+      double inactiveOpacity = 0.4;
+
+      for (var i = 0; i < cardsList.length; i++) {
+        final playerInGame = cardsList[i];
+        final targetOpacity = (i == indexOfPlayerTurn) ? activeOpacity : inactiveOpacity;
+
+        if (i == 0) {
+          for (var cardInGame in playerInGame) {
+            if (cardInGame?.button.opacity != targetOpacity) {
+              cardInGame?.button.opacity = targetOpacity;
+            }
+          }
+        } else {
+         
+          if (playerInGame?.button.opacity != targetOpacity) {
+            playerInGame?.button.opacity = targetOpacity;
+          }
+        }
+      }
+    }
+    
     super.update(dt);
   }
-
   void divideCards() async {
     await game.socket.on('joined', (joinedResult) {
       game.player.roomBet = 0.0;
@@ -320,10 +334,8 @@ class PokerTable extends World {
     });
 
     await game.socket.on("divided", (dynamic dividedCardsResult) {
-      game.player.hasStartedGame = true;
-
+    
       dynamic swappedUsersList = dividedCardsResult?['users'];
-      // print(dividedCardsResult);
 
       var indexOfPlayer = (swappedUsersList?.indexWhere((value) {
         return (value["username"] == game.player.name);
@@ -332,20 +344,26 @@ class PokerTable extends World {
       swappedUsersList[0] = swappedUsersList[indexOfPlayer];
       swappedUsersList[indexOfPlayer] = temp;
 
+      List<dynamic> animationCardOrder = [];
       // print(divided_cards_result);
 
       for (var initPos = -30; initPos <= 30; initPos += 15) {
-        addCard("deck/flip_down.png", initPos.toString(), "0", 0.0, 1.0, 1.3);
+        animationCardOrder.add(
+          addRegularCard("deck/flip_down.png", initPos.toString(), "0", 0.0, 1.0, 1.3, 40.0, 60.0)
+        );
       }
       if (startButton.isMounted) {
         super.remove(startButton);
         game.player.isPlayersTurn = true;
       }
-      print(swappedUsersList);
+      // print("swappedUsersList");
+      // print(swappedUsersList);
       game.player.swappedUsersList = swappedUsersList;
       game.player.playerNameTurn =
           dividedCardsResult['usersTurn'][0]["username"];
       game.player.playerCardsDisplay = [];
+      
+
       var i = 1;
 
       swappedUsersList.forEach((c) {
@@ -354,22 +372,31 @@ class PokerTable extends World {
         if (i == 1) {
           var mainPlayerCard = [];
           dividedCardsResult?['userCards'][c["username"]].forEach((c2) {
-            mainPlayerCard.add(addCard(
-                "deck/$c2.png",
-                (cardPosPlayers[dividedCardsResult?['users'].length - 2]
+            String moveToX = (cardPosPlayers[dividedCardsResult?['users'].length - 2]
                         ['player$i']?['x'][x])
-                    .toString(),
-                (cardPosPlayers[dividedCardsResult?['users'].length - 2]
+                    .toString();
+            String moveToY = (cardPosPlayers[dividedCardsResult?['users'].length - 2]
                         ['player$i']?['y'])
-                    .toString(),
+                    .toString();
+            
+            final handCard = addRegularCard(
+                "deck/$c2.png",
+                moveToX,
+                moveToY,
                 0.0,
                 1.0,
-                1.0));
+                1.0, 
+                40.0,
+                60.0);
+            mainPlayerCard.add(handCard["cardComponent"]); 
+            animationCardOrder.add(handCard);
             x++;
           });
+         
           game.player.playerCardsDisplay.add(mainPlayerCard);
         } else {
-          game.player.playerCardsDisplay.add(addCard2(
+         
+            final handCard = addRegularCard(
               "deck/double_flip_down.png",
               ((cardPosPlayers[dividedCardsResult?['users'].length - 2]
                           ['player$i']?['x'][0]) +
@@ -380,22 +407,84 @@ class PokerTable extends World {
                   .toString(),
               0.0,
               1.0,
-              1.0));
+              1.0,
+              75.0,
+              75.0
+            );
+            game.player.playerCardsDisplay.add(handCard["cardComponent"]);
+            animationCardOrder.add(handCard);
+              
         }
 
         i++;
       });
+      
+      Future.forEach(animationCardOrder, (dynamic cardObject) async {
+        final cardComponent = cardObject["cardComponent"] as Card;
+          final cardAnimation = cardObject["animation"] as Future;
+          await Future.delayed(const Duration(milliseconds: 250));
+          await cardAnimation.then((value) async {
+
+            await add(cardComponent);
+            await cardComponent.add(value);
+          });
+      });
+      game.player.hasStartedGame = true;
+     
     });
 
-    await game.socket.on("handle-bet", (handleBetResult) {
-      // print(handleBetResult);
+    await game.socket.on("handle-bet", (handleBetResult) async {
+      print(handleBetResult);
+      List<Card> animationCardOrder = [];
 
+      // removeAll(children.whereType<Card>().where((child) => child.position.y == 0 && child.isMounted));
       if (handleBetResult["message"] != "Hand Ranking successfully") {
-        var initPos = -30;
-        handleBetResult?["data"]?["flipUp"]?.forEach((card) {
-          addCard("deck/$card.png", initPos.toString(), "0", 0.0, 1.0, 1.3);
+        
+        List<dynamic> filpUpCard = handleBetResult?["data"]?["flipUp"];
+        int flipDownStartIndex = 5 - children.whereType<Card>().where((child) => child.position.y == 0.0 && child.isMounted && child.buttonPath == "deck/flip_down.png").length;
 
-          initPos += 15;
+        children.whereType<Card>().where((child) => child.position.y == 0.0 && child.isMounted && child.buttonPath =="deck/flip_down.png").forEach((card) {
+          if (flipDownStartIndex < filpUpCard.length){
+            card.buttonPath = "deck/${filpUpCard[flipDownStartIndex]}.png";
+            flipDownStartIndex++;
+          }
+          // card.position.y = 0.0;
+          // card.position.x = initPos * 16.0;
+          animationCardOrder.add(card);
+          
+        });
+        await Future.forEach(animationCardOrder, (Card cardComponent) async {
+          final double originScaleX = cardComponent.scale.x;
+          final String originPath = cardComponent.buttonPath;
+
+          // Only run flip effects once originPath is not a flip_down card
+          if (originPath != "deck/flip_down.png"){
+            // Flip down effect 
+            final flipDownEffect = ScaleEffect.to(
+              Vector2(0, cardComponent.scale.y),
+              EffectController(duration: 0.5),
+            );
+            flipDownEffect.onComplete = () async {
+              cardComponent.scale.x = 0;
+              cardComponent.button.sprite = await Sprite.load(originPath);
+            };
+
+            // Flip up effect
+            final flipUpEffect = ScaleEffect.to(
+              Vector2(originScaleX, cardComponent.scale.y),
+              EffectController(duration: 0.5),
+            );
+            flipUpEffect.onComplete = () {
+              cardComponent.scale.x = originScaleX;
+            };
+
+
+            await Future.delayed(const Duration(milliseconds: 250));
+            await add(cardComponent);
+            await cardComponent.add(flipDownEffect);
+            await Future.delayed(const Duration(milliseconds: 500));
+            await cardComponent.add(flipUpEffect);
+          }
         });
         game.player.lastBet = 0.0;
       } else {
@@ -404,33 +493,54 @@ class PokerTable extends World {
         game.player.hasStartedGame = false;
         game.player.isPlayersTurn = false;
         game.player.cash = 0.0;
+        game.socket.off('divided');
+        game.socket.off('handle-bet');
       }
       game.player.roomBet = 0.0;
       game.player.turnCount = 0;
     });
   }
-
-  Card addCard(cardPath, x, y, angle, opacity, _scale) {
-    // var x = c[1] as double;
-    var _card = Card(cardPath, double.parse(x) * 16, double.parse(y) * 16,
-        40 * 4, 60 * 4, angle, opacity, _scale,
+  // add 2 cards at the individual position of players function
+  Map<String, dynamic> addRegularCard(String cardPath,String x, String y, double angle, double opacity, double _scale, double w, double h) {
+    var _card = Card(cardPath, 0 * 16, 0 * 16,
+        w * 4, h * 4, angle, opacity, _scale,
         priority: 2);
-    _card.position.x = double.parse(x);
-    _card.position.y = double.parse(y);
+    _card.position.x = 0;
+    _card.position.y = -40*16;
     _card.anchor = Anchor.center;
-    add(_card);
-    return _card;
+    final Vector2 targetPosition = Vector2(double.parse(x) * 16, double.parse(y) * 16);
+    final moveEffect = MoveEffect.to(
+        targetPosition,
+        EffectController(duration: 0.5), // Duration of 0.3 seconds
+    );
+
+    moveEffect.onComplete = () {
+      
+      _card.position.x = double.parse(x) * 16; 
+      _card.position.y = double.parse(y) * 16; 
+    };
+    
+    
+    final animationFuture = Future<dynamic>.delayed(const Duration(milliseconds: 500), () async {
+      
+      return moveEffect;
+    });
+    return {
+      "cardComponent": _card,
+      "animation": animationFuture
+    };
   }
 
-  Card addCard2(cardPath, x, y, angle, opacity, _scale) {
-    // var x = c[1] as double;
-    var _card = Card(cardPath, double.parse(x) * 16, double.parse(y) * 16,
-        75 * 4, 75 * 4, angle, opacity, _scale,
-        priority: 2);
-    _card.position.x = double.parse(x);
-    _card.position.y = double.parse(y);
-    _card.anchor = Anchor.center;
-    add(_card);
-    return _card;
+
+  
+  @override
+  void onRemove() {
+    game.player.swappedUsersList = [];
+    game.player.hasStartedGame = false;
+    game.player.isPlayersTurn = false;
+    game.player.cash = 0.0;
+    game.socket.off('divided');
+    game.socket.off('handle-bet');
+    removeAll(children.where((child) => child.isMounted));
   }
 }

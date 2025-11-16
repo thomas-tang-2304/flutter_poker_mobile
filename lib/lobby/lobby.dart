@@ -4,7 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:poker_flutter_game/components/button.dart';
-import 'package:poker_flutter_game/lobby/Paralax/paralax_background.dart';
+import 'package:poker_flutter_game/lobby/RoomCarousel/room_carousel.dart';
 
 class Lobby extends World with DragCallbacks {
   var game;
@@ -30,6 +30,7 @@ class Lobby extends World with DragCallbacks {
 
     // Draw the shadow
     // canvas.drawColor(Color.fromARGB(255, 119, 69, 19), BlendMode.color);
+    
   }
 
   @override
@@ -47,5 +48,10 @@ class Lobby extends World with DragCallbacks {
     add(backgroundImage);
     add(scrollLobby);
     return super.onLoad();
+  }
+  @override
+  void onRemove() {
+    removeAll(children.where((child) => child.isMounted));
+   
   }
 }

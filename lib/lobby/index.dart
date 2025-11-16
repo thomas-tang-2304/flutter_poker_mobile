@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:flame/game.dart';
 import 'package:poker_flutter_game/lobby/lobby.dart';
 // import 'package:poker_flutter_game/utils/background.dart';
 
@@ -9,11 +10,16 @@ class LobbyPage extends Component {
 
   final world = Lobby();
 
-  var game;
+  late FlameGame<World> game;
+
+  @override
+  void onRemove() async {
+    removeAll(children.whereType<Lobby>().where((test) => test.isMounted));
+  }
 
   @override
   FutureOr<void> onLoad() {
-    game = findGame();
+    game = findGame()!;
 
     cam = CameraComponent.withFixedResolution(
       world: world,

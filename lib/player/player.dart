@@ -16,6 +16,7 @@ class Player {
   late double lastBet = 0.0;
   late double bet = 0.0;
   late List winners = [];
+  late int flipUpIndex = 0;
 
   // late int current_turn = 0;
   // ignore: non_constant_identifier_names

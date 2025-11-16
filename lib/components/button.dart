@@ -14,11 +14,14 @@ import 'package:poker_flutter_game/utils/text_render.dart';
 
 class Button extends PositionComponent with TapCallbacks {
   late String buttonPath;
+  @override
   late double x;
+  @override
   late double y;
   late double w;
   late double h;
   late double _scale;
+  @override
   late int priority;
   var _rect;
   late var game;
@@ -26,7 +29,7 @@ class Button extends PositionComponent with TapCallbacks {
   // Generative Constructor
   // ignore: non_constant_identifier_names
   Button(
-      String buttonPath, double x, double y, double w, double h, double _scale,
+      String buttonPath, double x, double y, double w, double h, double scale,
       {required int priority}) {
     // ignore: prefer_initializing_formals
     this.buttonPath = buttonPath;
@@ -41,13 +44,13 @@ class Button extends PositionComponent with TapCallbacks {
     // ignore: prefer_initializing_formals
     this.h = h;
     // ignore: prefer_initializing_formals
-    this._scale = _scale;
+    _scale = scale;
 
     // ignore: prefer_initializing_formals
     this.priority = priority;
 
     _rect = Rect.fromLTWH(
-        x - w * _scale / 2, y - h * _scale / 2, w * _scale, h * _scale);
+        x - w * scale / 2, y - h * scale / 2, w * scale, h * scale);
   }
 
   SpriteComponent button = SpriteComponent();
@@ -81,7 +84,7 @@ class Button extends PositionComponent with TapCallbacks {
 
 class MiniTable extends Button {
   late dynamic table;
-  late var game;
+  late dynamic game;
   MiniTable(super.buttonPath, this.table, super.x, super.y, super.w, super.h,
       super.scale,
       {required super.priority});
@@ -108,6 +111,7 @@ class MiniTable extends Button {
 
   @override
   bool containsLocalPoint(Vector2 point) => _rect.contains(point.toOffset());
+
   @override
   void onTapUp(TapUpEvent event) async {
     button.y -= 2;
@@ -126,18 +130,18 @@ class MiniTable extends Button {
     button.y += 2;
   }
 
+  @override
   void render(Canvas canvas) async {
     super.render(canvas);
     _rect = Rect.fromLTWH(x - 350, y - 300, 700, 350);
 
     final Path path = Path()..addRect(_rect);
 
-    canvas.drawShadow(path, Color.fromARGB(64, 244, 244, 244), 40, false);
+    canvas.drawShadow(path, const Color.fromARGB(64, 244, 244, 244), 40, false);
   }
 
   @override
   FutureOr<void> onLoad() async {
-    // TODO: implement onLoad
     game = findGame();
     button
       ..sprite = await Sprite.load(buttonPath)
@@ -149,7 +153,7 @@ class MiniTable extends Button {
     add(roomCodeText);
     add(firstBetText);
 
-    var _x = [
+    var playersIconsPos = [
       [0],
       [-3, 3],
       [-6, 0, 6],
@@ -159,12 +163,12 @@ class MiniTable extends Button {
     ];
     for (var i = 0; i < table["limit"]; i++) {
       Button userComponent = Button("user_gray.png",
-          x + _x[table["limit"] - 1][i] * 16, y - 1 * 16, 3 * 16, 4 * 16, 1.2,
+          x + playersIconsPos[table["limit"] - 1][i] * 16, y - 1 * 16, 3 * 16, 4 * 16, 1.2,
           priority: 5);
       userComponent.button.opacity = 0.5;
       if (table["usersCount"] - 1 >= i) {
         userComponent = Button("user_yellow.png",
-            x + _x[table["limit"] - 1][i] * 16, y - 1 * 16, 3 * 16, 4 * 16, 1.2,
+            x + playersIconsPos[table["limit"] - 1][i] * 16, y - 1 * 16, 3 * 16, 4 * 16, 1.2,
             priority: 5);
         userComponent.button.opacity = 1;
       }
@@ -191,16 +195,16 @@ class LeftArrow extends Button with HasWorldReference<Lobby> {
           '${(world.scrollLobby.page - 1) * world.scrollLobby.limit + 1} - ${(world.scrollLobby.page) * world.scrollLobby.limit}';
 
       int i = 1;
-      if (world.scrollLobby.full_tables != null) {
-        world.scrollLobby.tables = world.scrollLobby.full_tables?.sublist(
+      if (world.scrollLobby.fullTables != null) {
+        world.scrollLobby.tables = world.scrollLobby.fullTables?.sublist(
             ((world.scrollLobby.page - 1) * world.scrollLobby.limit),
             ((world.scrollLobby.page) * world.scrollLobby.limit) >
-                    world.scrollLobby.full_tables.length
-                ? world.scrollLobby.full_tables.length
+                    world.scrollLobby.fullTables.length
+                ? world.scrollLobby.fullTables.length
                 : (world.scrollLobby.page) * world.scrollLobby.limit);
 
         for (final table in world.scrollLobby.tables) {
-          MiniTable room_sprite = MiniTable(
+          MiniTable roomSprite = MiniTable(
               'mini_table.png',
               table,
               world.scrollLobby.initialTable_X,
@@ -209,10 +213,8 @@ class LeftArrow extends Button with HasWorldReference<Lobby> {
               350,
               1.2,
               priority: 5);
-          world.scrollLobby.add(room_sprite);
+          world.scrollLobby.add(roomSprite);
           world.scrollLobby.initialTable_X += world.scrollLobby.gap_x;
-          // countRoom += 1;
-          // print(countRoom);
           if (i % 3 == 0) {
             world.scrollLobby.initialTable_Y += world.scrollLobby.gap_y;
             world.scrollLobby.initialTable_X = -65 * 16;
@@ -240,7 +242,7 @@ class RightArrow extends Button with HasWorldReference<Lobby> {
   void onTapUp(TapUpEvent event) {
     world.scrollLobby.page++;
     if (pageOfTables(
-            world.scrollLobby.full_tables?.length, world.scrollLobby.limit) >=
+            world.scrollLobby.fullTables?.length, world.scrollLobby.limit) >=
         world.scrollLobby.page) {
       world.scrollLobby
           .removeAll(world.scrollLobby.children.query<MiniTable>());
@@ -250,15 +252,15 @@ class RightArrow extends Button with HasWorldReference<Lobby> {
 
       int i = 1;
 
-      if (world.scrollLobby.full_tables != null) {
-        world.scrollLobby.tables = world.scrollLobby.full_tables?.sublist(
+      if (world.scrollLobby.fullTables != null) {
+        world.scrollLobby.tables = world.scrollLobby.fullTables?.sublist(
             ((world.scrollLobby.page - 1) * world.scrollLobby.limit),
             ((world.scrollLobby.page) * world.scrollLobby.limit) >
-                    world.scrollLobby.full_tables.length
-                ? world.scrollLobby.full_tables.length
+                    world.scrollLobby.fullTables.length
+                ? world.scrollLobby.fullTables.length
                 : (world.scrollLobby.page) * world.scrollLobby.limit);
         for (final table in world.scrollLobby.tables) {
-          MiniTable room_sprite = MiniTable(
+          MiniTable roomSprite = MiniTable(
               'mini_table.png',
               table,
               world.scrollLobby.initialTable_X,
@@ -267,7 +269,7 @@ class RightArrow extends Button with HasWorldReference<Lobby> {
               350,
               1.2,
               priority: 5);
-          world.scrollLobby.add(room_sprite);
+          world.scrollLobby.add(roomSprite);
           world.scrollLobby.initialTable_X += world.scrollLobby.gap_x;
           // countRoom += 1;
           // print(countRoom);
@@ -305,14 +307,12 @@ class CreateRoomButton extends Button {
 
   @override
   void onTapDown(TapDownEvent event) {
-    // TODO: implement onTapDown
     game.overlays.add("roomCodePopup");
     super.onTapDown(event);
   }
 
   @override
   FutureOr<void> onLoad() {
-    // TODO: implement onLoad
     add(super.button);
     add(createText);
     return super.onLoad();
@@ -335,18 +335,13 @@ class StartButton extends Button with HasWorldReference<PokerTable> {
 
   @override
   void onTapDown(TapDownEvent event) async {
-    // TODO: implement onTapDown
     await game.socket.emit("divide-cards", {"roomCode": game.player.roomId});
-    // await game.socket.on("divided", (divided_cards_result) {
-    //   world.divided_cards_result = divided_cards_result;
-    // });
+  
     super.onTapDown(event);
   }
 
   @override
   FutureOr<void> onLoad() {
-    // TODO: implement onLoad
-
     add(button);
     add(startText);
     return super.onLoad();

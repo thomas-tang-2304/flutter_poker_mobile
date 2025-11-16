@@ -1,27 +1,23 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:flame/game.dart';
 // import 'package:poker_flutter_game/home/home.dart';
 import 'package:poker_flutter_game/table/table.dart';
 
 class Poker extends Component {
   late CameraComponent cam;
-  var game;
+  late FlameGame<World> game;
   final world = PokerTable();
 
   @override
   void onRemove() async {
-    // TODO: implement onRemove
-    await game.socket.emit('leave', {
-      "roomCode": game.player.roomId,
-      "username": game.player.name,
-      "gameBalance": game.player.cash 
-    });
+    removeAll(children.whereType<PokerTable>().where((test) => test.isMounted));
   }
 
   @override
   FutureOr<void> onLoad() {
-    game = findGame();
+    game = findGame()!;
     cam = CameraComponent.withFixedResolution(
       world: world,
       width: 220 * 16,

@@ -31,7 +31,6 @@ class OKButton extends Button with TapCallbacks, HasWorldReference<PokerTable> {
 
   @override
   void onTapUp(TapUpEvent event) async {
-    game.player.cash -= betNumber;
     game.player.bet = betNumber;
     // print(game.player.roomBet);
 
@@ -66,6 +65,7 @@ class OKButton extends Button with TapCallbacks, HasWorldReference<PokerTable> {
         "userBetNumber": betNumber
       });
     }
+    // print("bet button: "+ game.player.bet.toString());
     world.thumbComponent.position[1] = world.thumbComponent.limitEnd;
     betNumber = 0.0;
     world.curBalance.text = game.player.cash.toString();
@@ -92,14 +92,13 @@ class CallButton extends OKButton {
       {required super.priority});
   @override
   void onTapUp(TapUpEvent event) async {
-    game.player.cash -= game.player.lastBet;
-
+    game.player.bet = game.player.lastBet;
+    // print("call button: "+ game.player.bet.toString());
     await game.socket.emit("get-turn", {
       "roomCode": game.player.roomId,
       "reset": false,
-      "userBetNumber": game.player.lastBet
+      "userBetNumber": game.player.bet
     });
-    // super.onTapUp(event);
     world.curBalance.text = game.player.cash.toString();
   }
 }
